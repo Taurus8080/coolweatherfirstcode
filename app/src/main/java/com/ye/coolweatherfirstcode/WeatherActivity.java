@@ -5,11 +5,14 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -47,7 +50,10 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView sportText;
     private ScrollView weatherLayou;
     private ImageView bingPicImg;
-    private SwipeRefreshLayout swipRefresh;
+    public SwipeRefreshLayout swipRefresh;
+    // 滑动菜单
+    public DrawerLayout drawerLayout;
+    private Button navButton; // 调出滑动菜单的按钮
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +102,18 @@ public class WeatherActivity extends AppCompatActivity {
             loadBingPic();
         }
 
+        // 点击“home”按钮调出滑动菜单
+        navButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);
+                // 此时只打开滑动菜单而已，还需要处理切换城市后的逻辑才行。
+                // 这个工作必须要在ChooseAreaFragment中进行，
+                // 因为之前选中某个城市后是跳转到WeatherActivity的，
+                // 而现在由于我们本来就是在WeatherActivity中，因此并不需要跳转，
+                // 只是去请求选择城市的天气信息就可以了。
+            }
+        });
     }
 
     /**
@@ -241,5 +259,7 @@ public class WeatherActivity extends AppCompatActivity {
         weatherLayou = findViewById(R.id.weather_layou);
         bingPicImg = findViewById(R.id.bing_pic_img);
         swipRefresh = (SwipeRefreshLayout) findViewById(R.id.swip_refresh);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navButton = findViewById(R.id.nav_button);
     }
 }

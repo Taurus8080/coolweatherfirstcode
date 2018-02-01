@@ -10,46 +10,63 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
-    <!--下拉刷新-->
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swip_refresh"
+    <!--加入滑动菜单 DrawerLayout
+        第一个子控件用于作为主屏幕中显示的内容，
+        第二个子控件用于作为滑动菜单中显示的内容。-->
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--ScrollView 中的内容滚动到边缘时会产生渐变，
-            android:overScrollMode="never" 这个属性将渐变关闭-->
-        <ScrollView
-            android:id="@+id/weather_layou"
+        <!--下拉刷新-->
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swip_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!--ScrollView 中的内容滚动到边缘时会产生渐变，
+                android:overScrollMode="never" 这个属性将渐变关闭-->
+            <ScrollView
+                android:id="@+id/weather_layou"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:overScrollMode="never"
+                android:scrollbars="none">
+
+                <!-- 因为在WeatherActivity中使用代码设置了“沉浸式状态栏”效果，
+                    设置后运行，是的当前布局控件与状态栏几乎融为一体，因此使用一下属性，
+                    就会为系统状态栏留出空间。
+                    android:fitsSystemWindows="true"-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fitsSystemWindows="true"
+                    android:orientation="vertical">
+
+                    <include layout="@layout/title" />
+
+                    <include layout="@layout/now" />
+
+                    <include layout="@layout/forecast" />
+
+                    <include layout="@layout/aqi" />
+
+                    <include layout="@layout/suggestion" />
+
+                </LinearLayout>
+
+            </ScrollView>
+
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+        <fragment
+            android:id="@+id/choose_area_fragment"
+            android:name="com.ye.coolweatherfirstcode.ChooseAreaFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:overScrollMode="never"
-            android:scrollbars="none">
+            android:layout_gravity="start" />
 
-            <!-- 因为在WeatherActivity中使用代码设置了“沉浸式状态栏”效果，
-                设置后运行，是的当前布局控件与状态栏几乎融为一体，因此使用一下属性，
-                就会为系统状态栏留出空间。
-                android:fitsSystemWindows="true"-->
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fitsSystemWindows="true"
-                android:orientation="vertical">
-
-                <include layout="@layout/title" />
-
-                <include layout="@layout/now" />
-
-                <include layout="@layout/forecast" />
-
-                <include layout="@layout/aqi" />
-
-                <include layout="@layout/suggestion" />
-
-            </LinearLayout>
-
-        </ScrollView>
-
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </android.support.v4.widget.DrawerLayout>
 
 </FrameLayout>
