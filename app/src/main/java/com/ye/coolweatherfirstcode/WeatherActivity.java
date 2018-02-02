@@ -53,6 +53,7 @@ public class WeatherActivity extends AppCompatActivity {
     private ScrollView weatherLayou;
     private ImageView bingPicImg;
     public SwipeRefreshLayout swipRefresh;
+    private String mWeatherId;
     // 滑动菜单
     public DrawerLayout drawerLayout;
     private Button navButton; // 调出滑动菜单的按钮
@@ -75,34 +76,25 @@ public class WeatherActivity extends AppCompatActivity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = prefs.getString("weather", null);
 
-        final String weatherId;
         if (weatherString != null) {
             // 有缓存时，直接解析天气数据
             Weather weather = Utility.handleWeatherResponse(weatherString);
-            weatherId = weather.basic.weatherId;
+            mWeatherId = weather.basic.weatherId;
             showWeatherInfo(weather);
         } else {
             // 无缓存时，去服务器查询天气
-            weatherId = getIntent().getStringExtra("weather_id");
+            mWeatherId = getIntent().getStringExtra("weather_id");
             // 请求数据时将ScrollView隐藏，以免空数据的界面看起来奇怪
             weatherLayou.setVisibility(View.INVISIBLE);
-            requestWeather(weatherId);
+            requestWeather(mWeatherId);
         }
         // 下拉刷新
         swipRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                requestWeather(weatherId);
+                requestWeather(mWeatherId);
             }
         });
-
-        // 来自于必应的每日一图
-        String bingPic = prefs.getString("bing_pic", null);
-        if (bingPic != null) {
-            Glide.with(this).load(bingPic).into(bingPicImg);
-        } else {
-            loadBingPic();
-        }
 
         // 点击“home”按钮调出滑动菜单
         navButton.setOnClickListener(new View.OnClickListener() {
@@ -116,36 +108,14 @@ public class WeatherActivity extends AppCompatActivity {
                 // 只是去请求选择城市的天气信息就可以了。
             }
         });
-    }
 
-    /**
-     * 加载必应每日一图
-     */
-    private void loadBingPic() {
-        String requestBingPic = "http://guolin.tech/api/bing_pic";
-        HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String bingPic = response.body().string();
-                SharedPreferences.Editor editor = PreferenceManager
-                        .getDefaultSharedPreferences(WeatherActivity.this)
-                        .edit();
-                editor.putString("bing_pic", bingPic);
-                editor.apply();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Glide.with(WeatherActivity.this)
-                                .load(bingPic).into(bingPicImg);
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-        });
+        // 来自于必应的每日一图
+        String bingPic = prefs.getString("bing_pic", null);
+        if (bingPic != null) {
+            Glide.with(this).load(bingPic).into(bingPicImg);
+        } else {
+            loadBingPic();
+        }
     }
 
     /**
@@ -175,6 +145,7 @@ public class WeatherActivity extends AppCompatActivity {
                                     .edit();
                             editor.putString("weather", responseText);
                             editor.apply();
+                            mWeatherId = weather.basic.weatherId; //**书中没有此行代码，导致切换城市后手动刷新后，城市又变成之前缓存的城市*****************
                             showWeatherInfo(weather);
                         } else {
                             Toast.makeText(WeatherActivity.this,
@@ -252,6 +223,36 @@ public class WeatherActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "获取天气失败", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * 加载必应每日一图
+     */
+    private void loadBingPic() {
+        String requestBingPic = "http://guolin.tech/api/bing_pic";
+        HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String bingPic = response.body().string();
+                SharedPreferences.Editor editor = PreferenceManager
+                        .getDefaultSharedPreferences(WeatherActivity.this)
+                        .edit();
+                editor.putString("bing_pic", bingPic);
+                editor.apply();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(WeatherActivity.this)
+                                .load(bingPic).into(bingPicImg);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void initView() {
